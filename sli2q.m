@@ -5,6 +5,7 @@ function z_sli2q = sli2q(sx, sy, x, y)
 %   Copyright since 2016 by Lei Huang. All Rights Reserved.
 %   E-mail: huanglei0114@gmail.com
 %   2016-10-01 Original Version
+%   2016-11-01 Revised for x and y increasing directions.
 
 % Check the number of arguments............................................
 % Validate number of input arguments.
@@ -131,12 +132,18 @@ for ny = 1:Ny
         vv = vl(idx);
         if length(xx)>1
             pp = spline(xx,vv); % "not-a-knot end condition"
-            c = pp.coefs;   
+            c = pp.coefs;
             switch(size(c,2))
                 case 4  % 4 points for piecewise cubic spline fitting.
                     dx = diff(xx);
-                    gs{ns} = dx.*(c(:,4) + dx.*(c(:,3)./2 + dx.*(c(:,2)./3 + dx.*c(:,1)./4)));
-                
+                    if sign(mean(dx))==1
+                        gs{ns} = dx.*(c(:,4) + dx.*(c(:,3)./2 + dx.*(c(:,2)./3 + dx.*c(:,1)./4)));
+                    else
+                        dx = -flipud(dx);
+                        gs{ns} = dx.*(c(:,4) + dx.*(c(:,3)./2 + dx.*(c(:,2)./3 + dx.*c(:,1)./4)));
+                        gs{ns} = -flipud(gs{ns});
+                    end     
+                    
                 case 3  % 3 points for 2nd order polynominal fitting.
                     % Here we do not use the polynomials. 
                     % We are going to use the Southwell expression instead
@@ -189,11 +196,17 @@ for nx = 1:Nx
         vv = vl(idx);
         if length(yy)>1
             pp = spline(yy,vv); % "not-a-knot end condition"
-            c = pp.coefs;   
+            c = pp.coefs;
             switch(size(c,2))
                 case 4  % 4 points for piecewise cubic spline fitting.
                     dy = diff(yy);
-                    gs{ns} = dy.*(c(:,4) + dy.*(c(:,3)./2 + dy.*(c(:,2)./3 + dy.*c(:,1)./4)));
+                    if sign(mean(dy))==1
+                        gs{ns} = dy.*(c(:,4) + dy.*(c(:,3)./2 + dy.*(c(:,2)./3 + dy.*c(:,1)./4)));
+                    else
+                        dy = -flipud(diff(yy));
+                        gs{ns} = dy.*(c(:,4) + dy.*(c(:,3)./2 + dy.*(c(:,2)./3 + dy.*c(:,1)./4)));
+                        gs{ns} = -flipud(gs{ns});
+                    end
                     
                 case 3  % 3 points
                     % Here we do not use the polynomials. 
