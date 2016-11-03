@@ -72,25 +72,54 @@ z_anal  = eval( z);
 sx_anal = eval(sx);
 sy_anal = eval(sy);
 
-% Invalid Regions.
+% Invalid Regions, if want to simulate incomplete dataset.
 % NanMask = sx_anal'>0.5;
 % z_anal(NanMask) = NaN;
 % sx_anal(NanMask) = NaN;
 % sy_anal(NanMask) = NaN;
 
-figure; 
-subplot(131); mesh(x,y,z_anal);
-xlabel('x');
-ylabel('y');
-zlabel('z');
-subplot(132); mesh(x,y,sx_anal);
-xlabel('x');
-ylabel('y');
-zlabel('x-slope');
-subplot(133); mesh(x,y,sy_anal);
-xlabel('x');
-ylabel('y');
-zlabel('y-slope');
+FontSize = 20;
+figure('Name','Nominal z'); 
+surf(x,y,z_anal);
+xlabel('x [mm]');
+ylabel('y [mm]');
+zlabel('z [mm]');
+title('z [mm]');
+view([0,90]);
+axis image;
+box on;
+shading interp;
+set(gca,'FontSize',FontSize,'FontWeight','Bold')
+colorbar;
+
+figure('Name','Nominal x-slope'); 
+surf(x,y,sx_anal);
+xlabel('x [mm]');
+ylabel('y [mm]');
+zlabel('x-slope [rad]');
+title('x-slope [rad]');
+view([0,90]);
+axis image;
+box on;
+shading interp;
+set(gca,'FontSize',FontSize,'FontWeight','Bold')
+colorbar;
+colormap(RGBColorMap);
+
+figure('Name','Nominal y-slope'); 
+surf(x,y,sy_anal);
+xlabel('x [mm]');
+ylabel('y [mm]');
+zlabel('y-slope [rad]');
+title('y-slope [rad]');
+view([0,90]);
+axis image;
+box on;
+shading interp;
+set(gca,'FontSize',FontSize,'FontWeight','Bold')
+colorbar;
+colormap(RGBColorMap);
+
 
 save Step_01_GenerateSlopesInQuadrilateralGeometry.mat ...
     x y sx_anal sy_anal z_anal

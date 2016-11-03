@@ -68,10 +68,10 @@ x = x0 + rpex;
 y = y0 + rpey;
 
 figure; 
-mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]); 
+mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]);
 hold on;
-mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.2] ...
-    , 'marker','o','markerfacecolor',[0.8 0.2 0.2],'markeredgecolor',[0.8 0.2 0.2]);
+mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.8] ...
+    , 'marker','.','markerfacecolor',[0.8 0.2 0.8],'markersize',16);
 view([0, 90]);
 axis image off; 
 
@@ -81,10 +81,10 @@ x = x0 + dx;
 y = y0 + dy;
 
 figure; 
-mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]); 
+mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]);
 hold on;
-mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.2] ...
-    , 'marker','o','markerfacecolor',[0.8 0.2 0.2],'markeredgecolor',[0.8 0.2 0.2]);
+mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.8] ...
+    , 'marker','.','markerfacecolor',[0.8 0.2 0.8],'markersize',16);
 view([0, 90]);
 axis image off; 
 
@@ -94,10 +94,10 @@ x = x0 + kx;
 y = y0 + ky;
 
 figure; 
-mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]); 
+mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]);
 hold on;
-mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.2] ...
-    , 'marker','o','markerfacecolor',[0.8 0.2 0.2],'markeredgecolor',[0.8 0.2 0.2]);
+mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.8] ...
+    , 'marker','.','markerfacecolor',[0.8 0.2 0.8],'markersize',16);
 view([0, 90]);
 axis image off; 
 
@@ -107,9 +107,9 @@ x = x0 + rpex + dx + kx;
 y = y0 + rpey + dy + ky;
 
 figure; 
-mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]); 
+mesh(x0,y0,x0*0,'linewidth',2,'facecolor','none','edgecolor',[0.2 0.8 0.2]);
 hold on;
-mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.2] ...
-    , 'marker','o','markerfacecolor',[0.8 0.2 0.2],'markeredgecolor',[0.8 0.2 0.2]);
+mesh(x,y,x*0,'linewidth',1,'facecolor','none','edgecolor',[0.8 0.2 0.8] ...
+    , 'marker','.','markerfacecolor',[0.8 0.2 0.8],'markersize',16);
 view([0, 90]);
 axis image off; 
