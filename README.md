@@ -1,2 +1,2 @@
-# zonal-wavefront-reconstruction-in-quadrilateral-geometry
-zonal wavefront reconstruction in quadrilateral geometry
+# Zonal-wavefront-reconstruction-in-quadrilateral-geometry
+Zonal wavefront reconstruction in quadrilateral geometry
