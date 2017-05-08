@@ -6,6 +6,7 @@ close all
 clear
 clc
 
+
 %% Define analytical height and slopes.
 
 syms x y
@@ -91,6 +92,7 @@ box on;
 shading interp;
 set(gca,'FontSize',FontSize,'FontWeight','Bold')
 colorbar;
+saveas2('Nominal z.tif',600);
 
 figure('Name','Nominal x-slope'); 
 surf(x,y,sx_anal);
@@ -105,6 +107,7 @@ shading interp;
 set(gca,'FontSize',FontSize,'FontWeight','Bold')
 colorbar;
 colormap(RGBColorMap);
+saveas2('Nominal x-slope.tif',600);
 
 figure('Name','Nominal y-slope'); 
 surf(x,y,sy_anal);
@@ -119,6 +122,7 @@ shading interp;
 set(gca,'FontSize',FontSize,'FontWeight','Bold')
 colorbar;
 colormap(RGBColorMap);
+saveas2('Nominal y-slope.tif',600);
 
 
 save Step_01_GenerateSlopesInQuadrilateralGeometry.mat ...

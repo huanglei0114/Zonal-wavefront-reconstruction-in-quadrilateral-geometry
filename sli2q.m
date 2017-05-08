@@ -1,6 +1,11 @@
 function z_sli2q = sli2q(sx, sy, x, y)
-%SLI2 Spline-based Least-squares integration in quadrilateral geometry.
+%SLI2Q Spline-based Least-squares integration in quadrilateral geometry.
 %   D * Z = G (G is mainly composed by spline estimated values).
+%
+%   Reference: 
+%   L. Huang, J. Xue, B. Gao, C. Zuo, and M. Idir, "Spline based least 
+%   squares integration for two-dimensional shape or wavefront 
+%   reconstruction," Optics and Lasers in Engineering 91, 221-226 (2017)
 
 %   Copyright since 2016 by Lei Huang. All Rights Reserved.
 %   E-mail: huanglei0114@gmail.com

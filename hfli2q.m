@@ -1,5 +1,5 @@
 function z_hfli2q = hfli2q(sx, sy, x, y, z)
-%HFLI2 Higher-order Finite-difference-based Least-squares Integration in 
+%HFLI2Q Higher-order Finite-difference-based Least-squares Integration in 
 %   quadrilateral geometry. (Algorithm 1 in Reference)
 %   D * Z = G.
 %

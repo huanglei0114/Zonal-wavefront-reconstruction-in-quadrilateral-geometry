@@ -1,5 +1,5 @@
 function z_tfli2q  = tfli2q(sx, sy, x, y, z)
-%TFLI2 Traditional Finite-difference-based Least-squares Integration in 
+%TFLI2Q Traditional Finite-difference-based Least-squares Integration in 
 %   quadrilateral geometry.
 %   D * Z = G.
 % 
