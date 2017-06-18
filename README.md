@@ -1,5 +1,7 @@
 # Zonal-wavefront-reconstruction-in-quadrilateral-geometry
 
+This project studied several modified zonal methods to reconstruct the shape from gradient data in quadrialteral geometry, which includes the rectangular geometery but not limited to that.
+
 
 Reference:
 
