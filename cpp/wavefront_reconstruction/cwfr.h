@@ -19,12 +19,12 @@ using VectorXd = Eigen::Vector<double, Eigen::Dynamic>;
 
 
 // This class is exported from the dll
-class WAVEFRONTRECONSTRUCTION_API Cwavefrontreconstruction {
+class WAVEFRONTRECONSTRUCTION_API CWFR {
 public:
-	Cwavefrontreconstruction(void);
-	// TODO: add your methods here.
+	CWFR(void);
+	virtual ~CWFR();
 };
 
-extern WAVEFRONTRECONSTRUCTION_API int nwavefrontreconstruction;
-
-WAVEFRONTRECONSTRUCTION_API int fnwavefrontreconstruction(void);
+//extern WAVEFRONTRECONSTRUCTION_API int nwavefrontreconstruction;
+//
+//WAVEFRONTRECONSTRUCTION_API int fnwavefrontreconstruction(void);
