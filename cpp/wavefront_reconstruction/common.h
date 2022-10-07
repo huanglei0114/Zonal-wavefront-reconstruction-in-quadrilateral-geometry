@@ -7,7 +7,7 @@
 #define WAVEFRONTRECONSTRUCTION_API __declspec(dllimport)
 #endif
 
-// Eigen API aliases
+// Aliases
 using int_t = Eigen::Index;
 using Tripletd = Eigen::Triplet<double>;
 using SparseMatrixXXd = Eigen::SparseMatrix<double, Eigen::RowMajor>;
