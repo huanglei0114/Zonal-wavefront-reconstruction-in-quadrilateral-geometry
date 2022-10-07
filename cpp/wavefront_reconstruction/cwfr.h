@@ -1,20 +1,7 @@
 #ifndef CWFR_H
 #define CWFR_H
 
-#ifdef WAVEFRONTRECONSTRUCTION_EXPORTS
-#define WAVEFRONTRECONSTRUCTION_API __declspec(dllexport)
-#else
-#define WAVEFRONTRECONSTRUCTION_API __declspec(dllimport)
-#endif
-
-// Eigen API aliases
-using int_t = Eigen::Index;
-using Tripletd = Eigen::Triplet<double>;
-using SparseMatrixXXd = Eigen::SparseMatrix<double, Eigen::RowMajor>;
-using MatrixXXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
-using VectorXd = Eigen::VectorXd;
-using VectorXi = Eigen::VectorXi;
-
+#include "common.h"
 
 //! This is the class the reconstruct the wavefront shape from gradient data
 /*!
@@ -58,7 +45,7 @@ public:
 
 	MatrixXXd operator () (
 		WFR_METHOD method = WFR_METHOD::HFLI /*!< [in] method to be used*/
-	);
+		);
 
 private:
 	//! HFLI method
@@ -75,7 +62,7 @@ private:
 	//! Fill the matrix D and the rhs vector g
 	void hfli_fill_D_g(
 		SparseMatrixXXd& D, /*!< [out] the filled matrix D*/
-		std::vector<double>& g_std /*!< [out] the filled vector g_std*/
+		std_vecd& g_std /*!< [out] the filled vector g_std*/
 	);
 
 	//! Determine if the current position is valid for a 3rd-order equation
@@ -91,7 +78,7 @@ private:
 	* where "x" and "NaN" are the invalid positions.
 	* \return a pair of (bool, bool) indicating whether the (x, y) has the 3rd-order equation.
 	*/
-	std::pair<bool, bool> is_3rd_order_equation(
+	bb_pair is_3rd_order_equation(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);
@@ -113,13 +100,12 @@ private:
 	* This means 5th-order = 3rd-order + boundary care + NaN
 	* \return a pair of (bool, bool) indicating whether the (x, y) has the 5th-order equation.
 	*/
-	std::pair<bool, bool> is_5th_order_equation(
+	bb_pair is_5th_order_equation(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);
 };
 
 
+
 #endif // !CWFR_H
-
-

@@ -1,9 +1,13 @@
+#include "pch.h"
+#include "framework.h"
+#include "cwfr.h"
+
 // cwfr.cpp : Defines the exported functions for the DLL.
 //
 
 #include "pch.h"
 #include "framework.h"
-#include "cwfr.h"
+#include "common.h"
 
 
 CWFR::CWFR(const MatrixXXd& Sx, const MatrixXXd& Sy, const MatrixXXd& X, const MatrixXXd& Y)
@@ -47,7 +51,7 @@ MatrixXXd CWFR::hfli()
 	D.reserve(VectorXi::Constant(m_rows, 2));
 
 	// construct the std vector g_std for appending the slopes and reserve the maximum size
-	std::vector<double> g_std;
+	std_vecd g_std;
 	g_std.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
 
 	/* 0.1 fill D and g_std */
@@ -59,12 +63,12 @@ MatrixXXd CWFR::hfli()
 	return MatrixXXd();
 }
 
-void CWFR::hfli_fill_D_g(SparseMatrixXXd& D, std::vector<double>& g_std)
+void CWFR::hfli_fill_D_g(SparseMatrixXXd& D, std_vecd& g_std)
 {
 
 }
 
-std::pair<bool, bool> CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
+bb_pair CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
 {
 	std::pair<bool, bool> is_valid{ true, true };
 
@@ -91,7 +95,7 @@ std::pair<bool, bool> CWFR::is_3rd_order_equation(const int_t& i, const int_t& j
 	return is_valid;
 }
 
-std::pair<bool, bool> CWFR::is_5th_order_equation(const int_t& i, const int_t& j)
+bb_pair CWFR::is_5th_order_equation(const int_t& i, const int_t& j)
 {
 	std::pair<bool, bool> is_valid{ true, true };
 
