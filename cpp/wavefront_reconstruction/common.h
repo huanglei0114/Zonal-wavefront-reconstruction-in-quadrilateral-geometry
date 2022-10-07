@@ -16,7 +16,7 @@ using VectorXd = Eigen::VectorXd;
 using VectorXi = Eigen::VectorXi;
 using std_vecd = std::vector<double>;
 using bb_pair = std::pair<bool, bool>;
-
+#define REP(i, a, b) for(int_t i = int_t(a); i <= int_t(b); i++);
 
 #endif // !COMMON_H
 

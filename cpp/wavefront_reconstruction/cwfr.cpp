@@ -65,7 +65,12 @@ MatrixXXd CWFR::hfli()
 
 void CWFR::hfli_fill_D_g(SparseMatrixXXd& D, std_vecd& g_std)
 {
+	// start the iterations without 
+	REP(i, 1, m_rows - 2) {
+		REP(j, 1, m_cols - 2) {
 
+		}
+	}
 }
 
 bb_pair CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
