@@ -61,7 +61,7 @@ private:
 private:
 	//! Fill the matrix D and the rhs vector g
 	void hfli_fill_D_g(
-		SparseMatrixXXd& D, /*!< [out] the filled matrix D*/
+		TripletListd& D_trps, /*!< [out] the filled matrix D*/
 		std_vecd& g_std /*!< [out] the filled vector g_std*/
 	);
 
@@ -101,6 +101,12 @@ private:
 	* \return a pair of (bool, bool) indicating whether the (x, y) has the 5th-order equation.
 	*/
 	bb_pair is_5th_order_equation(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+
+	//! Calcualte the 3rd order for the gx
+	void calculate_3rd_order_gx(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);

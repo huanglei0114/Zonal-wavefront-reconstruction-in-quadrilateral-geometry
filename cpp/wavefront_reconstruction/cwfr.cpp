@@ -47,8 +47,8 @@ MatrixXXd CWFR::hfli()
 	/* 0. build the least-squares system */
 	/* 0.0 Pre-allocate and reserve the memory space */
 	// construct the matrix D and reserve the maximum size
-	SparseMatrixXXd D;
-	D.reserve(VectorXi::Constant(m_rows, 2));
+	TripletListd D_trp;
+	D_trp.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
 
 	// construct the std vector g_std for appending the slopes and reserve the maximum size
 	std_vecd g_std;
@@ -63,7 +63,7 @@ MatrixXXd CWFR::hfli()
 	return MatrixXXd();
 }
 
-void CWFR::hfli_fill_D_g(SparseMatrixXXd& D, std_vecd& g_std)
+void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 {
 	// start the iterations without 
 	REP(i, 1, m_rows - 2) {
@@ -130,4 +130,8 @@ bb_pair CWFR::is_5th_order_equation(const int_t& i, const int_t& j)
 	}
 
 	return is_valid;
+}
+
+void CWFR::calculate_3rd_order_gx(const int_t& i, const int_t& j)
+{
 }

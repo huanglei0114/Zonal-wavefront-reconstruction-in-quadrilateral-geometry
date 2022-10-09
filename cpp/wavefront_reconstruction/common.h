@@ -10,6 +10,7 @@
 // Aliases
 using int_t = Eigen::Index;
 using Tripletd = Eigen::Triplet<double>;
+using TripletListd = std::vector<Tripletd>;
 using SparseMatrixXXd = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 using MatrixXXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using VectorXd = Eigen::VectorXd;
