@@ -47,17 +47,26 @@ MatrixXXd CWFR::hfli()
 	/* 0. build the least-squares system */
 	/* 0.0 Pre-allocate and reserve the memory space */
 	// construct the matrix D and reserve the maximum size
-	TripletListd D_trp;
-	D_trp.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
+	TripletListd D_trps;
+	D_trps.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
 
 	// construct the std vector g_std for appending the slopes and reserve the maximum size
 	std_vecd g_std;
 	g_std.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
 
 	/* 0.1 fill D and g_std */
-	hfli_fill_D_g(D, g_std);
+	hfli_fill_D_g(D_trps, g_std);
 
 	// 1. solve the least-squares system
+	// build the sparse matrix D
+	SparseMatrixXXd D(D_trps.size() / 2, m_cols * m_rows);
+	D.setFromTriplets(D_trps.begin(), D_trps.end());
+
+	// map the vecotr g
+	VectorMapd g(g_std.data(), g_std.size());
+
+	// solve with LU factorization
+
 
 	// 2. build and return the result
 	return MatrixXXd();
@@ -65,10 +74,40 @@ MatrixXXd CWFR::hfli()
 
 void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 {
-	// start the iterations without 
-	REP(i, 1, m_rows - 2) {
-		REP(j, 1, m_cols - 2) {
+	bb_pair is_sx_sy_5th; // determine if 5th order
+	bb_pair is_sx_sy_3rd; // determine if 3rd order
+	int_t curr_row = 0;
 
+	// start the iterations 
+	for (int_t i = 1; i <= m_rows - 2; i++) {
+		for (int_t j = 1; j <= m_cols - 2; j++) {
+			// validate if 5th,3rd or no equations
+			is_sx_sy_5th = is_5th_order_equation(i, j);
+			is_sx_sy_3rd = is_3rd_order_equation(i, j);
+
+			// deal with Sx
+			if (is_sx_sy_5th.first || is_sx_sy_3rd.first) {
+				// push to D_trps
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j + 1, m_cols),  1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j    , m_cols), -1));
+				++curr_row;
+
+				// push to g_std
+				if (is_sx_sy_5th.first) g_std.push_back(calculate_5th_order_gx(i, j));
+				else g_std.push_back(calculate_3rd_order_gx(i, j));
+			}
+
+			// deal with Sy
+			if (is_sx_sy_5th.second || is_sx_sy_3rd.second) {
+				// push to D_trps
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i    , j, m_cols),  1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i + 1, j, m_cols), -1));
+				++curr_row;
+
+				// push_to g_std
+				if (is_sx_sy_5th.second) g_std.push_back(calculate_5th_order_gy(i, j));
+				else g_std.push_back(calculate_3rd_order_gy(i, j));
+			}
 		}
 	}
 }
@@ -132,6 +171,22 @@ bb_pair CWFR::is_5th_order_equation(const int_t& i, const int_t& j)
 	return is_valid;
 }
 
-void CWFR::calculate_3rd_order_gx(const int_t& i, const int_t& j)
+double CWFR::calculate_3rd_order_gx(const int_t& i, const int_t& j)
 {
+	return (m_Sx(i, j) + m_Sx(i, j + 1)) * (m_X(i, j + 1) - m_X(i, j)) * 0.5;
+}
+
+double CWFR::calculate_5th_order_gx(const int_t& i, const int_t& j)
+{
+	return (-1 / 13 * m_Sx(i, j - 1) + m_Sx(i, j) + m_Sx(i, j + 1) - 1 / 13 * m_Sx(i, j + 2)) * (m_X(i, j + 1) - m_X(i, j)) * (13 / 24);
+}
+
+double CWFR::calculate_3rd_order_gy(const int_t& i, const int_t& j)
+{
+	return (m_Sy(i, j) + m_Sy(i + 1, j)) * (m_Y(i + 1, j) - m_Y(i, j)) * 0.5;
+}
+
+double CWFR::calculate_5th_order_gy(const int_t& i, const int_t& j)
+{
+	return (-1 / 13 * m_Sy(i - 1, j) + m_Sy(i, j) + m_Sy(i + 1, j) - 1 / 13 * m_Sy(i + 2, j)) * (m_Y(i + 1, j) - m_Y(i, j)) * (13 / 24);
 }

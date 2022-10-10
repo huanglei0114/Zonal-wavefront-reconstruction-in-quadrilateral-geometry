@@ -106,7 +106,37 @@ private:
 	);
 
 	//! Calcualte the 3rd order for the gx
-	void calculate_3rd_order_gx(
+	/*
+	* \return the gx for the j, j+1 segment
+	*/
+	double calculate_3rd_order_gx(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+
+	//! Calcualte the 5th order for the gx
+	/*
+	* \return the gx for the j, j+1 segment
+	*/
+	double calculate_5th_order_gx(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+
+	//! Calcualte the 3rd order for the gy
+	/*
+	* \return the gy for the i, i+1 segment
+	*/
+	double calculate_3rd_order_gy(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+
+	//! Calcualte the 5th order for the gy
+	/*
+	* \return the gy for the i, i+1 segment
+	*/
+	double calculate_5th_order_gy(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);

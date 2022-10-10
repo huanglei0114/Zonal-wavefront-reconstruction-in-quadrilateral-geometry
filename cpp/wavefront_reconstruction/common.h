@@ -15,9 +15,12 @@ using SparseMatrixXXd = Eigen::SparseMatrix<double, Eigen::RowMajor>;
 using MatrixXXd = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using VectorXd = Eigen::VectorXd;
 using VectorXi = Eigen::VectorXi;
+using VectorMapd = Eigen::Map<VectorXd, Eigen::Unaligned>;
 using std_vecd = std::vector<double>;
 using bb_pair = std::pair<bool, bool>;
-#define REP(i, a, b) for(int_t i = int_t(a); i <= int_t(b); i++);
+
+inline int_t ID_1D(int_t x, int_t y, int_t width) { return (y * width + x); }
+
 
 #endif // !COMMON_H
 
