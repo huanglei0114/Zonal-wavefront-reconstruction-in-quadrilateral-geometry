@@ -48,18 +48,18 @@ MatrixXXd CWFR::hfli()
 	/* 0.0 Pre-allocate and reserve the memory space */
 	// construct the matrix D and reserve the maximum size
 	TripletListd D_trps;
-	D_trps.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
+	D_trps.reserve(z_size);
 
 	// construct the std vector g_std for appending the slopes and reserve the maximum size
 	std_vecd g_std;
-	g_std.reserve((m_rows - 3) * m_cols + m_rows * (m_cols - 3));
+	g_std.reserve(z_size);
 
 	/* 0.1 fill D and g_std */
 	hfli_fill_D_g(D_trps, g_std);
 
 	// 1. solve the least-squares system
 	// build the sparse matrix D
-	SparseMatrixXXd D(D_trps.size() / 2, m_cols * m_rows);
+	SparseMatrixXXd D(D_trps.size() / 2, z_size);
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
 	D.makeCompressed();
 
@@ -67,12 +67,7 @@ MatrixXXd CWFR::hfli()
 	VectorMapd g(g_std.data(), g_std.size());
 
 	// solve with QR factorization
-	QRSolver qr_solver;
-	qr_solver.compute(D);
-	if (qr_solver.info() != Eigen::Success) {
-		return MatrixXXd();
-	}
-	
+	Solver qr_solver(D);	
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
 		return MatrixXXd();
@@ -92,47 +87,56 @@ MatrixXXd CWFR::hfli()
 
 void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 {
-	bb_pair is_sx_sy_5th; // determine if 5th order
-	bb_pair is_sx_sy_3rd; // determine if 3rd order
+	bool is_5th = false; // determine if 5th order
+	bool is_3rd = false; // determine if 3rd order
 	int_t curr_row = 0;
 
-	// start the iterations 
+	// start the y iterations 
 	for (int_t i = 1; i <= m_rows - 2; i++) {
+		for (int_t j = 0; j <= m_cols - 1; j++) {
+			// validate if 5th,3rd or no equations
+			is_5th = is_5th_order_equation_sy(i, j);
+			is_3rd = is_3rd_order_equation_sy(i, j);
+
+			// deal with Sy
+			if (is_5th || is_3rd) {
+				// push to D_trps
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i + 1, j, m_cols), -1));
+				++curr_row;
+
+				// push_to g_std
+				if (is_5th) g_std.push_back(calculate_5th_order_gy(i, j));
+				else g_std.push_back(calculate_3rd_order_gy(i, j));
+			}
+		}
+	}
+
+	// start the x iterations 
+	for (int_t i = 0; i <= m_rows - 1; i++) {
 		for (int_t j = 1; j <= m_cols - 2; j++) {
 			// validate if 5th,3rd or no equations
-			is_sx_sy_5th = is_5th_order_equation(i, j);
-			is_sx_sy_3rd = is_3rd_order_equation(i, j);
+			is_5th = is_5th_order_equation_sx(i, j);
+			is_3rd = is_3rd_order_equation_sx(i, j);
 
 			// deal with Sx
-			if (is_sx_sy_5th.first || is_sx_sy_3rd.first) {
+			if (is_5th || is_3rd) {
 				// push to D_trps
 				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j + 1, m_cols),  1));
 				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j    , m_cols), -1));
 				++curr_row;
 
 				// push to g_std
-				if (is_sx_sy_5th.first) g_std.push_back(calculate_5th_order_gx(i, j));
+				if (is_5th) g_std.push_back(calculate_5th_order_gx(i, j));
 				else g_std.push_back(calculate_3rd_order_gx(i, j));
-			}
-
-			// deal with Sy
-			if (is_sx_sy_5th.second || is_sx_sy_3rd.second) {
-				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i    , j, m_cols),  1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i + 1, j, m_cols), -1));
-				++curr_row;
-
-				// push_to g_std
-				if (is_sx_sy_5th.second) g_std.push_back(calculate_5th_order_gy(i, j));
-				else g_std.push_back(calculate_3rd_order_gy(i, j));
 			}
 		}
 	}
 }
 
-bb_pair CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
+bool CWFR::is_3rd_order_equation_sx(const int_t& i, const int_t& j)
 {
-	std::pair<bool, bool> is_valid{ true, true };
+	bool is_valid = true;
 
 	// slope x case
 	if (
@@ -141,8 +145,15 @@ bb_pair CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
 		!std::isfinite(m_Sx(i, j - 1))
 		)
 	{
-		is_valid.first = false;
+		is_valid = false;
 	}
+
+	return is_valid;
+}
+
+bool CWFR::is_3rd_order_equation_sy(const int_t& i, const int_t& j)
+{
+	bool is_valid = true;
 
 	// slope y case
 	if (
@@ -151,38 +162,48 @@ bb_pair CWFR::is_3rd_order_equation(const int_t& i, const int_t& j)
 		!std::isfinite(m_Sy(i - 1, j))
 		)
 	{
-		is_valid.second = false;
+		is_valid = false;
 	}
 
 	return is_valid;
 }
 
-bb_pair CWFR::is_5th_order_equation(const int_t& i, const int_t& j)
+bool CWFR::is_5th_order_equation_sx(const int_t& i, const int_t& j)
 {
-	std::pair<bool, bool> is_valid{ true, true };
+	bool is_valid = true;
 
 	// it should be 3rd-order valid
-	is_valid = is_3rd_order_equation(i, j);
+	is_valid = is_3rd_order_equation_sx(i, j);
 
 	// slope x case
-	if (is_valid.first) {
+	if (is_valid) {
 		// it should be valid at the right boundary
-		is_valid.first = j + 2 > m_cols - 1 ? false : true;
+		is_valid = j + 2 > m_cols - 1 ? false : true;
 
 		// it should avoid the NaN at the j + 2 position
-		if (is_valid.first) {
-			is_valid.first = std::isfinite(m_Sx(i, j + 2)) ? true : false;
+		if (is_valid) {
+			is_valid = std::isfinite(m_Sx(i, j + 2)) ? true : false;
 		}
 	}
 
+	return is_valid;
+}
+
+bool CWFR::is_5th_order_equation_sy(const int_t& i, const int_t& j)
+{
+	bool is_valid = true;
+
+	// it should be 3rd-order valid
+	is_valid = is_3rd_order_equation_sy(i, j);
+
 	// slope y case
-	if (is_valid.second) {
+	if (is_valid) {
 		// it should be valid at the bottom boundary
-		is_valid.second = i + 2 > m_rows - 1 ? false : true;
+		is_valid = i + 2 > m_rows - 1 ? false : true;
 
 		// it should avoid the NaN at the i + 2 position
-		if (is_valid.second) {
-			is_valid.second = std::isfinite(m_Sy(i + 2, j)) ? true : false;
+		if (is_valid) {
+			is_valid = std::isfinite(m_Sy(i + 2, j)) ? true : false;
 		}
 	}
 

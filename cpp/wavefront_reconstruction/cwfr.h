@@ -78,7 +78,11 @@ private:
 	* where "x" and "NaN" are the invalid positions.
 	* \return a pair of (bool, bool) indicating whether the (x, y) has the 3rd-order equation.
 	*/
-	bb_pair is_3rd_order_equation(
+	bool is_3rd_order_equation_sx(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+	bool is_3rd_order_equation_sy(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);
@@ -100,7 +104,11 @@ private:
 	* This means 5th-order = 3rd-order + boundary care + NaN
 	* \return a pair of (bool, bool) indicating whether the (x, y) has the 5th-order equation.
 	*/
-	bb_pair is_5th_order_equation(
+	bool is_5th_order_equation_sx(
+		const int_t& i, /*!< [in] the id in y-axis*/
+		const int_t& j  /*!< [in] the id in x-axis*/
+	);
+	bool is_5th_order_equation_sy(
 		const int_t& i, /*!< [in] the id in y-axis*/
 		const int_t& j  /*!< [in] the id in x-axis*/
 	);
