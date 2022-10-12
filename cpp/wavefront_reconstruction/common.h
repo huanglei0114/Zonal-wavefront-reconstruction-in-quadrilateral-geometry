@@ -18,7 +18,7 @@ using VectorXi = Eigen::VectorXi;
 using VectorMapd = Eigen::Map<VectorXd, Eigen::Unaligned>;
 using std_vecd = std::vector<double>;
 using bb_pair = std::pair<bool, bool>;
-
+using QRSolver = Eigen::SparseQR<SparseMatrixXXd, Eigen::COLAMDOrdering<int>>;
 inline int_t ID_1D(int_t x, int_t y, int_t width) { return (y * width + x); }
 
 

@@ -13,5 +13,8 @@
 #include <vector>
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
+#include <Eigen/SparseQR>
+#include <Eigen/OrderingMethods>
+
 
 #endif //PCH_H

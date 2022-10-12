@@ -61,15 +61,33 @@ MatrixXXd CWFR::hfli()
 	// build the sparse matrix D
 	SparseMatrixXXd D(D_trps.size() / 2, m_cols * m_rows);
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
+	D.makeCompressed();
 
 	// map the vecotr g
 	VectorMapd g(g_std.data(), g_std.size());
 
-	// solve with LU factorization
+	// solve with QR factorization
+	QRSolver qr_solver;
+	qr_solver.compute(D);
+	if (qr_solver.info() != Eigen::Success) {
+		return MatrixXXd();
+	}
+	
+	VectorXd z = qr_solver.solve(g);
+	if (qr_solver.info() != Eigen::Success) {
+		return MatrixXXd();
+	}
 
+	//z.reshaped()
+	//// 2. build and return the result
+	//MatrixXXd Z = MatrixXXd::Zero(m_rows, m_cols);
+	//for (int_t i = 0; i < m_rows; i++) {
+	//	for (int_t j = 0; j < m_cols; j++) {
+	//		Z(i, j) = z(ID_1D(j, i, m_cols));
+	//	}
+	//}
 
-	// 2. build and return the result
-	return MatrixXXd();
+	return z.reshaped(m_rows, m_cols);
 }
 
 void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
