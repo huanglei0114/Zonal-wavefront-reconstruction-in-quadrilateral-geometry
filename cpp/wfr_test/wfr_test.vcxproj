@@ -25,6 +25,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="matrix_io.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

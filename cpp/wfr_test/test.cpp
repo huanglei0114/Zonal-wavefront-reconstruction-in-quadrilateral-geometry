@@ -1,12 +1,16 @@
 #include "pch.h"
 #include "common.h"
 #include "cwfr.h"
+#include "matrix_io.h"
 
-TEST(TestCaseName, TestName) {
-  EXPECT_EQ(1, 1);
-  EXPECT_TRUE(true);
+TEST(MatrixIOTest, ReadTheMatrix) {
+	const char* file_name = "../../data/X.bin";
 
-  MatrixXXd Sx, Sy, X, Y;
+	int rows = 0, cols = 0;
+	double* X = nullptr;
 
-  CWFR wfr(Sx, Sy, X, Y);
+	read_matrix_from_disk(file_name, &rows, &cols, &X);
+
+	std::cout << rows << ", " << cols << std::endl;
+	print_matrix_in_matlab_format(rows, cols, X);
 }
