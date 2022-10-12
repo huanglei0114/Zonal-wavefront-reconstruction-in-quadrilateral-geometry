@@ -92,7 +92,7 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	int_t curr_row = 0;
 
 	// start the y iterations 
-	for (int_t i = 1; i <= m_rows - 2; i++) {
+	for (int_t i = 0; i <= m_rows - 2; i++) {
 		for (int_t j = 0; j <= m_cols - 1; j++) {
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sy(i, j);
@@ -106,15 +106,25 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 				++curr_row;
 
 				// push_to g_std
-				if (is_5th) g_std.push_back(calculate_5th_order_gy(i, j));
-				else g_std.push_back(calculate_3rd_order_gy(i, j));
+				if (is_5th)
+				{
+					std::cout << i <<", "<< j << std::endl;
+					if (i == 125 && j == 127) {
+						std::cout << "feihua" << std::endl;
+					}
+					g_std.push_back(calculate_5th_order_gy(i, j));
+				}
+				else
+				{
+					g_std.push_back(calculate_3rd_order_gy(i, j));
+				}
 			}
 		}
 	}
 
 	// start the x iterations 
 	for (int_t i = 0; i <= m_rows - 1; i++) {
-		for (int_t j = 1; j <= m_cols - 2; j++) {
+		for (int_t j = 0; j <= m_cols - 2; j++) {
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sx(i, j);
 			is_3rd = is_3rd_order_equation_sx(i, j);
@@ -141,8 +151,7 @@ bool CWFR::is_3rd_order_equation_sx(const int_t& i, const int_t& j)
 	// slope x case
 	if (
 		!std::isfinite(m_Sx(i, j)) ||
-		!std::isfinite(m_Sx(i, j + 1)) ||
-		!std::isfinite(m_Sx(i, j - 1))
+		!std::isfinite(m_Sx(i, j + 1))
 		)
 	{
 		is_valid = false;
@@ -158,8 +167,7 @@ bool CWFR::is_3rd_order_equation_sy(const int_t& i, const int_t& j)
 	// slope y case
 	if (
 		!std::isfinite(m_Sy(i, j)) ||
-		!std::isfinite(m_Sy(i + 1, j)) ||
-		!std::isfinite(m_Sy(i - 1, j))
+		!std::isfinite(m_Sy(i + 1, j))
 		)
 	{
 		is_valid = false;
@@ -178,7 +186,7 @@ bool CWFR::is_5th_order_equation_sx(const int_t& i, const int_t& j)
 	// slope x case
 	if (is_valid) {
 		// it should be valid at the right boundary
-		is_valid = j + 2 > m_cols - 1 ? false : true;
+		is_valid = (j + 2 <= m_cols - 1) && (j - 1 >= 0) ? true : false;
 
 		// it should avoid the NaN at the j + 2 position
 		if (is_valid) {
@@ -199,11 +207,12 @@ bool CWFR::is_5th_order_equation_sy(const int_t& i, const int_t& j)
 	// slope y case
 	if (is_valid) {
 		// it should be valid at the bottom boundary
-		is_valid = i + 2 > m_rows - 1 ? false : true;
+		is_valid = (i + 2 <= m_rows - 1) && (i - 1 >= 0) ? true : false;
 
 		// it should avoid the NaN at the i + 2 position
 		if (is_valid) {
 			is_valid = std::isfinite(m_Sy(i + 2, j)) ? true : false;
+			//is_valid = std::isfinite(m_Sy(i + 1, j)) ? true : false;
 		}
 	}
 
