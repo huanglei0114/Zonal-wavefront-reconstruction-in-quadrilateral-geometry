@@ -7,6 +7,26 @@
 
 inline int ID_1D(int x, int y, int width) { return (y * width + x); }
 
+static int read_matrix_size_from_stream(FILE* file, int* rows, int* cols)
+{
+	if (fread(rows, sizeof(int), 1, file) < 1)
+		return 1;
+	if (fread(cols, sizeof(int), 1, file) < 1)
+		return 1;
+
+	return 0;
+}
+
+static int write_matrix_header_to_stream(FILE* file, int rows, int cols)
+{
+	if (fwrite(&rows, sizeof(int), 1, file) < 1)
+		return 1;
+	if (fwrite(&cols, sizeof(int), 1, file) < 1)
+		return 1;
+
+	return 0;
+}
+
 template <class T>
 int read_matrix_from_disk(const char* filename, int* rows, int* cols, T** matrix)
 {
@@ -109,26 +129,6 @@ void print_matrix_in_matlab_format(int rows, int cols, T* U)
 	}
 
 	printf("\n}\n");
-}
-
-static int read_matrix_size_from_stream(FILE* file, int* rows, int* cols)
-{
-	if (fread(rows, sizeof(int), 1, file) < 1)
-		return 1;
-	if (fread(cols, sizeof(int), 1, file) < 1)
-		return 1;
-
-	return 0;
-}
-
-static int write_matrix_header_to_stream(FILE* file, int rows, int cols)
-{
-	if (fwrite(&rows, sizeof(int), 1, file) < 1)
-		return 1;
-	if (fwrite(&cols, sizeof(int), 1, file) < 1)
-		return 1;
-
-	return 0;
 }
 
 

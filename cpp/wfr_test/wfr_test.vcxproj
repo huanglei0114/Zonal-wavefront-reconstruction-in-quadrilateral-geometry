@@ -39,7 +39,6 @@
     <IntDir>$(SolutionDIR)bin\$(ProjectName)\temp\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemGroup>
-    <ClInclude Include="matrix_io.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

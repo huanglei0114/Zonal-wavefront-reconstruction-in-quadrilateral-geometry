@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "framework.h"
 #include "cwfr.h"
+#include "matrix_io.h"
 
 // cwfr.cpp : Defines the exported functions for the DLL.
 //
@@ -63,11 +64,15 @@ MatrixXXd CWFR::hfli()
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
 	D.makeCompressed();
 
+	// for debug
+	write_matrix_to_disk("../../data/g.bin", int(g_std.size()), 1, g_std.data());
+
 	// map the vecotr g
 	VectorMapd g(g_std.data(), g_std.size());
 
 	// solve with QR factorization
-	Solver qr_solver(D);
+	QRSolver qr_solver(D);
+	//Solver qr_solver(D);
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
 		return MatrixXXd();
@@ -91,27 +96,6 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	bool is_3rd = false; // determine if 3rd order
 	int_t curr_row = 0;
 
-	// start the y iterations 
-	for (int_t i = 0; i <= m_rows - 2; i++) {
-		for (int_t j = 0; j <= m_cols - 1; j++) {
-			// validate if 5th,3rd or no equations
-			is_5th = is_5th_order_equation_sy(i, j);
-			is_3rd = is_3rd_order_equation_sy(i, j);
-
-			// deal with Sy
-			if (is_5th || is_3rd) {
-				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j, m_cols), 1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i + 1, j, m_cols), -1));
-				++curr_row;
-
-				// push_to g_std
-				if (is_5th) g_std.push_back(calculate_5th_order_gy(i, j));
-				else g_std.push_back(calculate_3rd_order_gy(i, j));
-			}
-		}
-	}
-
 	// start the x iterations 
 	for (int_t i = 0; i <= m_rows - 1; i++) {
 		for (int_t j = 0; j <= m_cols - 2; j++) {
@@ -122,13 +106,34 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j + 1, m_cols), 1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j, m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j    , i, m_cols), -1));
 				++curr_row;
 
 				// push to g_std
 				if (is_5th) g_std.push_back(calculate_5th_order_gx(i, j));
 				else g_std.push_back(calculate_3rd_order_gx(i, j));
+			}
+		}
+	}
+
+	// start the y iterations 
+	for (int_t i = 0; i <= m_rows - 2; i++) {
+		for (int_t j = 0; j <= m_cols - 1; j++) {
+			// validate if 5th,3rd or no equations
+			is_5th = is_5th_order_equation_sy(i, j);
+			is_3rd = is_3rd_order_equation_sy(i, j);
+
+			// deal with Sy
+			if (is_5th || is_3rd) {
+				// push to D_trps
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i    , m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols), -1));
+				++curr_row;
+
+				// push_to g_std
+				if (is_5th) g_std.push_back(calculate_5th_order_gy(i, j));
+				else g_std.push_back(calculate_3rd_order_gy(i, j));
 			}
 		}
 	}
@@ -215,7 +220,7 @@ double CWFR::calculate_3rd_order_gx(const int_t& i, const int_t& j)
 
 double CWFR::calculate_5th_order_gx(const int_t& i, const int_t& j)
 {
-	return (-1 / 13 * m_Sx(i, j - 1) + m_Sx(i, j) + m_Sx(i, j + 1) - 1 / 13 * m_Sx(i, j + 2)) * (m_X(i, j + 1) - m_X(i, j)) * (13 / 24);
+	return (-1.0 / 13.0 * m_Sx(i, j - 1) + m_Sx(i, j) + m_Sx(i, j + 1) - 1.0 / 13.0 * m_Sx(i, j + 2)) * (m_X(i, j + 1) - m_X(i, j)) * (13.0 / 24.0);
 }
 
 double CWFR::calculate_3rd_order_gy(const int_t& i, const int_t& j)
@@ -225,5 +230,5 @@ double CWFR::calculate_3rd_order_gy(const int_t& i, const int_t& j)
 
 double CWFR::calculate_5th_order_gy(const int_t& i, const int_t& j)
 {
-	return (-1 / 13 * m_Sy(i - 1, j) + m_Sy(i, j) + m_Sy(i + 1, j) - 1 / 13 * m_Sy(i + 2, j)) * (m_Y(i + 1, j) - m_Y(i, j)) * (13 / 24);
+	return (-1.0 / 13.0 * m_Sy(i - 1, j) + m_Sy(i, j) + m_Sy(i + 1, j) - 1.0 / 13.0 * m_Sy(i + 2, j)) * (m_Y(i + 1, j) - m_Y(i, j)) * (13.0 / 24.0);
 }

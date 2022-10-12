@@ -48,6 +48,8 @@ TEST(CWFRTest, hfli) {
 	MatrixXXd Z_calc = wfr();
 	MatrixXXd Z_diff = Z_calc - Zmap;	
 
+	write_matrix_to_disk("../../data/Z_calc.bin", rows, cols, Z_calc.data());
+
 	free(X);
 	free(Y);
 	free(Z);

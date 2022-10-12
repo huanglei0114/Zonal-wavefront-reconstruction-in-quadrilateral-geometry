@@ -14,6 +14,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
+#include <Eigen/SparseQR>
 
 
 #endif //PCH_H
