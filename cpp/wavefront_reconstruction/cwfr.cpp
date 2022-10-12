@@ -67,7 +67,7 @@ MatrixXXd CWFR::hfli()
 	VectorMapd g(g_std.data(), g_std.size());
 
 	// solve with QR factorization
-	Solver qr_solver(D);	
+	Solver qr_solver(D);
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
 		return MatrixXXd();
@@ -106,18 +106,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 				++curr_row;
 
 				// push_to g_std
-				if (is_5th)
-				{
-					std::cout << i <<", "<< j << std::endl;
-					if (i == 125 && j == 127) {
-						std::cout << "feihua" << std::endl;
-					}
-					g_std.push_back(calculate_5th_order_gy(i, j));
-				}
-				else
-				{
-					g_std.push_back(calculate_3rd_order_gy(i, j));
-				}
+				if (is_5th) g_std.push_back(calculate_5th_order_gy(i, j));
+				else g_std.push_back(calculate_3rd_order_gy(i, j));
 			}
 		}
 	}
@@ -132,8 +122,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j + 1, m_cols),  1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j    , m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j + 1, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(i, j, m_cols), -1));
 				++curr_row;
 
 				// push to g_std
@@ -212,7 +202,6 @@ bool CWFR::is_5th_order_equation_sy(const int_t& i, const int_t& j)
 		// it should avoid the NaN at the i + 2 position
 		if (is_valid) {
 			is_valid = std::isfinite(m_Sy(i + 2, j)) ? true : false;
-			//is_valid = std::isfinite(m_Sy(i + 1, j)) ? true : false;
 		}
 	}
 
