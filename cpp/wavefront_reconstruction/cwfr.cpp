@@ -64,28 +64,15 @@ MatrixXXd CWFR::hfli()
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
 	D.makeCompressed();
 
-	// for debug
-	write_matrix_to_disk("../../data/g.bin", int(g_std.size()), 1, g_std.data());
-
 	// map the vecotr g
 	VectorMapd g(g_std.data(), g_std.size());
 
 	// solve with QR factorization
-	//QRSolver qr_solver(D);
 	Solver qr_solver(D);
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
 		return MatrixXXd();
 	}
-
-	//z.reshaped()
-	//// 2. build and return the result
-	//MatrixXXd Z = MatrixXXd::Zero(m_rows, m_cols);
-	//for (int_t i = 0; i < m_rows; i++) {
-	//	for (int_t j = 0; j < m_cols; j++) {
-	//		Z(i, j) = z(ID_1D(j, i, m_cols));
-	//	}
-	//}
 
 	return z.reshaped<Eigen::RowMajor>(m_rows, m_cols);
 }
@@ -107,8 +94,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j    , i, m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols),  1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols), 1));
 				++curr_row;
 
 				// push to g_std
@@ -128,8 +115,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sy
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i    , m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols),  1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols), 1));
 				++curr_row;
 
 				// push_to g_std

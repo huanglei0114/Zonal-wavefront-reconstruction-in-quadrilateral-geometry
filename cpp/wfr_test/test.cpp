@@ -20,7 +20,7 @@ TEST(MatrixIOTest, ReadTheMatrix) {
 TEST(CWFRTest, hfli) {
 
 	int rows = 0, cols = 0;
-	
+
 	double* X = nullptr;
 	double* Y = nullptr;
 	double* Z = nullptr;
@@ -28,9 +28,9 @@ TEST(CWFRTest, hfli) {
 	double* Sy = nullptr;
 
 	// oad data
-	read_matrix_from_disk("../../data/X.bin" , &rows, &cols, &X);
-	read_matrix_from_disk("../../data/Y.bin" , &rows, &cols, &Y);
-	read_matrix_from_disk("../../data/Z.bin" , &rows, &cols, &Z);
+	read_matrix_from_disk("../../data/X.bin", &rows, &cols, &X);
+	read_matrix_from_disk("../../data/Y.bin", &rows, &cols, &Y);
+	read_matrix_from_disk("../../data/Z.bin", &rows, &cols, &Z);
 	read_matrix_from_disk("../../data/Sx.bin", &rows, &cols, &Sx);
 	read_matrix_from_disk("../../data/Sy.bin", &rows, &cols, &Sy);
 
@@ -46,7 +46,7 @@ TEST(CWFRTest, hfli) {
 	// call the functions
 	CWFR wfr(Sxmap, Symap, Xmap, Ymap);
 	MatrixXXd Z_calc = wfr();
-	MatrixXXd Z_diff = Z_calc - Zmap;	
+	MatrixXXd Z_diff = Z_calc - Zmap;
 
 	write_matrix_to_disk("../../data/Z_calc.bin", rows, cols, Z_calc.data());
 

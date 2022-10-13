@@ -17,7 +17,6 @@ using VectorXd = Eigen::VectorXd;
 using VectorXi = Eigen::VectorXi;
 using VectorMapd = Eigen::Map<VectorXd, Eigen::Unaligned>;
 using std_vecd = std::vector<double>;
-using bb_pair = std::pair<bool, bool>;
 using Solver = Eigen::LeastSquaresConjugateGradient<SparseMatrixXXd>;
 using QRSolver = Eigen::SparseQR<SparseMatrixXXd, Eigen::COLAMDOrdering<int>>;
 
