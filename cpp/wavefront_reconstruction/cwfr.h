@@ -58,9 +58,25 @@ private:
 	*/
 	MatrixXXd hfli();
 
+	//! HFLIQ method
+	/*!
+	* Reconstruct the height from the slopes in x and y directions with
+	* the High-order Finite-difference-based Least-squares Integration for
+	* Quadrileteral (HFLIQ) method.
+	*					D * z = g
+	* \return the reconstructed wavefront Z
+	*/
+	MatrixXXd hfliq();
+
 private:
-	//! Fill the matrix D and the rhs vector g
+	//! Fill the matrix D and the rhs vector g for hfli
 	void hfli_fill_D_g(
+		TripletListd& D_trps, /*!< [out] the filled matrix D*/
+		std_vecd& g_std /*!< [out] the filled vector g_std*/
+	);
+
+	//! Fill the matrix D and the rhs vector g for hfliq
+	void hfliq_fill_D_g(
 		TripletListd& D_trps, /*!< [out] the filled matrix D*/
 		std_vecd& g_std /*!< [out] the filled vector g_std*/
 	);
@@ -119,7 +135,8 @@ private:
 	*/
 	double calculate_3rd_order_gx(
 		const int_t& i, /*!< [in] the id in y-axis*/
-		const int_t& j  /*!< [in] the id in x-axis*/
+		const int_t& j, /*!< [in] the id in x-axis*/
+		bool is_from_gy = false /*!< [in] for hfliq, if gy contributes*/
 	);
 
 	//! Calcualte the 5th order for the gx
@@ -128,7 +145,8 @@ private:
 	*/
 	double calculate_5th_order_gx(
 		const int_t& i, /*!< [in] the id in y-axis*/
-		const int_t& j  /*!< [in] the id in x-axis*/
+		const int_t& j, /*!< [in] the id in x-axis*/
+		bool is_from_gy = false /*!< [in] for hfliq, if gy contributes*/
 	);
 
 	//! Calcualte the 3rd order for the gy
@@ -137,7 +155,8 @@ private:
 	*/
 	double calculate_3rd_order_gy(
 		const int_t& i, /*!< [in] the id in y-axis*/
-		const int_t& j  /*!< [in] the id in x-axis*/
+		const int_t& j, /*!< [in] the id in x-axis*/
+		bool is_from_gx = false /*!< [in] for hfliq, if gx contributes*/
 	);
 
 	//! Calcualte the 5th order for the gy
@@ -146,7 +165,8 @@ private:
 	*/
 	double calculate_5th_order_gy(
 		const int_t& i, /*!< [in] the id in y-axis*/
-		const int_t& j  /*!< [in] the id in x-axis*/
+		const int_t& j, /*!< [in] the id in x-axis*/
+		bool is_from_gx = false /*!< [in] for hfliq, if gx contributes*/
 	);
 };
 

@@ -45,7 +45,7 @@ TEST(CWFRTest, hfli) {
 
 	// call the functions
 	CWFR wfr(Sxmap, Symap, Xmap, Ymap);
-	MatrixXXd Z_calc = wfr();
+	MatrixXXd Z_calc = wfr(CWFR::WFR_METHOD::HFLIQ);
 	MatrixXXd Z_diff = Z_calc - Zmap;
 
 	write_matrix_to_disk("../../data/Z_calc.bin", rows, cols, Z_calc.data());
