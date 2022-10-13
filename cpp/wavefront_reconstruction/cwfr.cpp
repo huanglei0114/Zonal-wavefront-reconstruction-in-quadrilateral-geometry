@@ -71,8 +71,8 @@ MatrixXXd CWFR::hfli()
 	VectorMapd g(g_std.data(), g_std.size());
 
 	// solve with QR factorization
-	QRSolver qr_solver(D);
-	//Solver qr_solver(D);
+	//QRSolver qr_solver(D);
+	Solver qr_solver(D);
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
 		return MatrixXXd();
@@ -87,7 +87,7 @@ MatrixXXd CWFR::hfli()
 	//	}
 	//}
 
-	return z.reshaped(m_rows, m_cols);
+	return z.reshaped<Eigen::RowMajor>(m_rows, m_cols);
 }
 
 void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
@@ -95,10 +95,11 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	bool is_5th = false; // determine if 5th order
 	bool is_3rd = false; // determine if 3rd order
 	int_t curr_row = 0;
+	bool is_first_minus_1 = false;
 
 	// start the x iterations 
-	for (int_t i = 0; i <= m_rows - 1; i++) {
-		for (int_t j = 0; j <= m_cols - 2; j++) {
+	for (int_t j = 0; j <= m_cols - 2; j++) {
+		for (int_t i = 0; i <= m_rows - 1; i++) {
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sx(i, j);
 			is_3rd = is_3rd_order_equation_sx(i, j);
@@ -106,8 +107,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols), 1));
 				D_trps.push_back(Tripletd(curr_row, ID_1D(j    , i, m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols),  1));
 				++curr_row;
 
 				// push to g_std
@@ -118,8 +119,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	}
 
 	// start the y iterations 
-	for (int_t i = 0; i <= m_rows - 2; i++) {
-		for (int_t j = 0; j <= m_cols - 1; j++) {
+	for (int_t j = 0; j <= m_cols - 1; j++) {
+		for (int_t i = 0; i <= m_rows - 2; i++) {
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sy(i, j);
 			is_3rd = is_3rd_order_equation_sy(i, j);
@@ -127,8 +128,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sy
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i    , m_cols), 1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i    , m_cols), -1));
+				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols),  1));
 				++curr_row;
 
 				// push_to g_std
