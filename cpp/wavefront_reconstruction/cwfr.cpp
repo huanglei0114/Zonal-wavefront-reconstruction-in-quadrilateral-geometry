@@ -82,7 +82,6 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	bool is_5th = false; // determine if 5th order
 	bool is_3rd = false; // determine if 3rd order
 	int_t curr_row = 0;
-	bool is_first_minus_1 = false;
 
 	// start the x iterations 
 	for (int_t j = 0; j <= m_cols - 2; j++) {
