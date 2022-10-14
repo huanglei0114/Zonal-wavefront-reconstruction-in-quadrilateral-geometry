@@ -56,7 +56,7 @@ private:
 	*					D * z = g
 	* \return the reconstructed wavefront Z
 	*/
-	MatrixXXd hfli_worker(std::function<void (TripletListd&, std_vecd&)>hfli_prep);
+	MatrixXXd hfli_calculator(std::function<void (TripletListd&, std_vecd&)>hfli_prep);
 
 private:
 	//! Fill the matrix D and the rhs vector g for hfli

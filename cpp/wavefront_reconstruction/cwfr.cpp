@@ -30,14 +30,14 @@ MatrixXXd CWFR::operator()(WFR_METHOD method)
 	switch (method)
 	{
 	case WFR_METHOD::HFLI:
-		return hfli_worker(std::bind(&CWFR::hfli_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
+		return hfli_calculator(std::bind(&CWFR::hfli_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
 	case WFR_METHOD::HFLIQ:
 	default:
-		return hfli_worker(std::bind(&CWFR::hfliq_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
+		return hfli_calculator(std::bind(&CWFR::hfliq_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
 	}
 }
 
-MatrixXXd CWFR::hfli_worker(std::function<void (TripletListd&, std_vecd&)> hfli_prep)
+MatrixXXd CWFR::hfli_calculator(std::function<void (TripletListd&, std_vecd&)> hfli_prep)
 {
 	auto z_size = m_rows * m_cols; // size of the z vector
 
