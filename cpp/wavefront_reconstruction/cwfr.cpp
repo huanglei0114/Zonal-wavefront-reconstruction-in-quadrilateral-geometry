@@ -1,14 +1,6 @@
 #include "pch.h"
 #include "framework.h"
 #include "cwfr.h"
-#include "matrix_io.h"
-
-// cwfr.cpp : Defines the exported functions for the DLL.
-//
-
-#include "pch.h"
-#include "framework.h"
-#include "common.h"
 
 
 CWFR::CWFR(const MatrixXXd& Sx, const MatrixXXd& Sy, const MatrixXXd& X, const MatrixXXd& Y)
@@ -37,7 +29,7 @@ MatrixXXd CWFR::operator()(WFR_METHOD method)
 	}
 }
 
-MatrixXXd CWFR::hfli_calculator(std::function<void (TripletListd&, std_vecd&)> hfli_prep)
+MatrixXXd CWFR::hfli_calculator(std::function<void(TripletListd&, std_vecd&)> hfli_prep)
 {
 	auto z_size = m_rows * m_cols; // size of the z vector
 
@@ -54,7 +46,7 @@ MatrixXXd CWFR::hfli_calculator(std::function<void (TripletListd&, std_vecd&)> h
 	/* 0.1 fill D and g_std */
 	hfli_prep(D_trps, g_std);
 
-	// 1. solve the least-squares system
+	/* 1. solve the least - squares system */
 	// build the sparse matrix D
 	SparseMatrixXXd D(D_trps.size() / 2, z_size);
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
@@ -67,9 +59,18 @@ MatrixXXd CWFR::hfli_calculator(std::function<void (TripletListd&, std_vecd&)> h
 	Solver qr_solver(D);
 	VectorXd z = qr_solver.solve(g);
 	if (qr_solver.info() != Eigen::Success) {
-		return MatrixXXd();
+		return MatrixXXd::Zero(m_rows, m_cols);
 	}
 
+	/* 2. Only keep the valid points */
+	for (int_t i = 0; i < m_rows; i++) {
+		for (int_t j = 0; j < m_cols; j++) {
+			if (!isfinite(m_Sx(i, j)) || !isfinite(m_Sy(i, j)))
+				z(ID_1D(j, i, m_cols)) = NAN;
+		}
+	}
+
+	/* 3. Reshape and return the result */
 	return z.reshaped<Eigen::RowMajor>(m_rows, m_cols);
 }
 
@@ -80,8 +81,9 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	int_t curr_row = 0;
 
 	// start the x iterations 
-	for (int_t j = 0; j <= m_cols - 2; j++) {
-		for (int_t i = 0; i <= m_rows - 1; i++) {
+	for (int_t i = 0; i <= m_rows - 1; i++) {
+		for (int_t j = 0; j <= m_cols - 2; j++) {
+
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sx(i, j);
 			is_3rd = is_3rd_order_equation_sx(i, j);
@@ -101,8 +103,9 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	}
 
 	// start the y iterations 
-	for (int_t j = 0; j <= m_cols - 1; j++) {
-		for (int_t i = 0; i <= m_rows - 2; i++) {
+	for (int_t i = 0; i <= m_rows - 2; i++) {
+		for (int_t j = 0; j <= m_cols - 1; j++) {
+
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sy(i, j);
 			is_3rd = is_3rd_order_equation_sy(i, j);
@@ -129,8 +132,8 @@ void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	int_t curr_row = 0;
 
 	// start the x iterations 
-	for (int_t j = 0; j <= m_cols - 2; j++) {
-		for (int_t i = 0; i <= m_rows - 1; i++) {
+	for (int_t i = 0; i <= m_rows - 1; i++) {
+		for (int_t j = 0; j <= m_cols - 2; j++) {
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sx(i, j);
 			is_3rd = is_3rd_order_equation_sx(i, j);
@@ -156,8 +159,9 @@ void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	}
 
 	// start the y iterations 
-	for (int_t j = 0; j <= m_cols - 1; j++) {
-		for (int_t i = 0; i <= m_rows - 2; i++) {
+	for (int_t i = 0; i <= m_rows - 2; i++) {
+		for (int_t j = 0; j <= m_cols - 1; j++) {
+
 			// validate if 5th,3rd or no equations
 			is_5th = is_5th_order_equation_sy(i, j);
 			is_3rd = is_3rd_order_equation_sy(i, j);
