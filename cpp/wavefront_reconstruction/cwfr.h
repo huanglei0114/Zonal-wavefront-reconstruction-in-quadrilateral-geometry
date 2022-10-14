@@ -51,22 +51,12 @@ private:
 	//! HFLI method
 	/*!
 	* Reconstruct the height from the slopes in x and y directions with
-	* the High-order Finite-difference-based Least-squares Integration (HFLI)
-	* method.
-	*					D * z = g
-	* \return the reconstructed wavefront Z
-	*/
-	MatrixXXd hfli();
-
-	//! HFLIQ method
-	/*!
-	* Reconstruct the height from the slopes in x and y directions with
 	* the High-order Finite-difference-based Least-squares Integration for
 	* Quadrileteral (HFLIQ) method.
 	*					D * z = g
 	* \return the reconstructed wavefront Z
 	*/
-	MatrixXXd hfliq();
+	MatrixXXd hfli_worker(std::function<void (TripletListd&, std_vecd&)>hfli_prep);
 
 private:
 	//! Fill the matrix D and the rhs vector g for hfli

@@ -11,6 +11,7 @@
 #include "framework.h"
 #include <iostream>
 #include <vector>
+#include <functional>
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>

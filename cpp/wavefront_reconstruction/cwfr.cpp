@@ -30,14 +30,14 @@ MatrixXXd CWFR::operator()(WFR_METHOD method)
 	switch (method)
 	{
 	case WFR_METHOD::HFLI:
-		return hfli();
+		return hfli_worker(std::bind(&CWFR::hfli_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
 	case WFR_METHOD::HFLIQ:
 	default:
-		return hfliq();
+		return hfli_worker(std::bind(&CWFR::hfliq_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
 	}
 }
 
-MatrixXXd CWFR::hfli()
+MatrixXXd CWFR::hfli_worker(std::function<void (TripletListd&, std_vecd&)> hfli_prep)
 {
 	auto z_size = m_rows * m_cols; // size of the z vector
 
@@ -52,43 +52,7 @@ MatrixXXd CWFR::hfli()
 	g_std.reserve(z_size);
 
 	/* 0.1 fill D and g_std */
-	hfli_fill_D_g(D_trps, g_std);
-
-	// 1. solve the least-squares system
-	// build the sparse matrix D
-	SparseMatrixXXd D(D_trps.size() / 2, z_size);
-	D.setFromTriplets(D_trps.begin(), D_trps.end());
-	D.makeCompressed();
-
-	// map the vecotr g
-	VectorMapd g(g_std.data(), g_std.size());
-
-	// solve with QR factorization
-	Solver qr_solver(D);
-	VectorXd z = qr_solver.solve(g);
-	if (qr_solver.info() != Eigen::Success) {
-		return MatrixXXd();
-	}
-
-	return z.reshaped<Eigen::RowMajor>(m_rows, m_cols);
-}
-
-MatrixXXd CWFR::hfliq()
-{
-	auto z_size = m_rows * m_cols; // size of the z vector
-
-	/* 0. build the least-squares system */
-	/* 0.0 Pre-allocate and reserve the memory space */
-	// construct the matrix D and reserve the maximum size
-	TripletListd D_trps;
-	D_trps.reserve(z_size);
-
-	// construct the std vector g_std for appending the slopes and reserve the maximum size
-	std_vecd g_std;
-	g_std.reserve(z_size);
-
-	/* 0.1 fill D and g_std */
-	hfliq_fill_D_g(D_trps, g_std);
+	hfli_prep(D_trps, g_std);
 
 	// 1. solve the least-squares system
 	// build the sparse matrix D
