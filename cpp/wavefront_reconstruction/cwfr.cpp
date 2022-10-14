@@ -234,7 +234,7 @@ bool CWFR::is_5th_order_equation_sx(const int_t& i, const int_t& j)
 
 		// it should avoid the NaN at the j + 2 position
 		if (is_valid) {
-			is_valid = std::isfinite(m_Sx(i, j + 2)) ? true : false;
+			is_valid = std::isfinite(m_Sx(i, j + 2)) && std::isfinite(m_Sx(i, j - 1)) ? true : false;
 		}
 	}
 
@@ -255,7 +255,7 @@ bool CWFR::is_5th_order_equation_sy(const int_t& i, const int_t& j)
 
 		// it should avoid the NaN at the i + 2 position
 		if (is_valid) {
-			is_valid = std::isfinite(m_Sy(i + 2, j)) ? true : false;
+			is_valid = std::isfinite(m_Sy(i + 2, j)) && std::isfinite(m_Sy(i - 1, j)) ? true : false;
 		}
 	}
 
