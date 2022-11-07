@@ -22,14 +22,14 @@ MatrixXXd CWFR::operator()(WFR_METHOD method)
 	switch (method)
 	{
 	case WFR_METHOD::HFLI:
-		return hfli_calculator(std::bind(&CWFR::hfli_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
+		return hfli_calculator(std::bind(&CWFR::hfli_fill_D_g, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	case WFR_METHOD::HFLIQ:
 	default:
-		return hfli_calculator(std::bind(&CWFR::hfliq_fill_D_g, this, std::placeholders::_1, std::placeholders::_2));
+		return hfli_calculator(std::bind(&CWFR::hfliq_fill_D_g, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	}
 }
 
-MatrixXXd CWFR::hfli_calculator(std::function<void(TripletListd&, std_vecd&)> hfli_prep)
+MatrixXXd CWFR::hfli_calculator(std::function<void(TripletListd&, std_vecd&, const map_ii&)> hfli_prep)
 {
 	auto z_size = m_rows * m_cols; // size of the z vector
 
@@ -43,12 +43,16 @@ MatrixXXd CWFR::hfli_calculator(std::function<void(TripletListd&, std_vecd&)> hf
 	std_vecd g_std;
 	g_std.reserve(z_size);
 
+	// get the valid ids
+	auto valid_ids_map = get_valid_ids();
+
+
 	/* 0.1 fill D and g_std */
-	hfli_prep(D_trps, g_std);
+	hfli_prep(D_trps, g_std, valid_ids_map);
 
 	/* 1. solve the least - squares system */
 	// build the sparse matrix D
-	SparseMatrixXXd D(D_trps.size() / 2, z_size);
+	SparseMatrixXXd D(D_trps.size() / 2, valid_ids_map.size());
 	D.setFromTriplets(D_trps.begin(), D_trps.end());
 	D.makeCompressed();
 
@@ -63,18 +67,20 @@ MatrixXXd CWFR::hfli_calculator(std::function<void(TripletListd&, std_vecd&)> hf
 	}
 
 	/* 2. Only keep the valid points */
+	MatrixXXd Z(m_rows, m_cols);
+	Z.fill(NAN);
 	for (int_t i = 0; i < m_rows; i++) {
 		for (int_t j = 0; j < m_cols; j++) {
-			if (!isfinite(m_Sx(i, j)) || !isfinite(m_Sy(i, j)))
-				z(ID_1D(j, i, m_cols)) = NAN;
+			if (is_valid_id(i, j))
+				Z(i, j) = z(valid_ids_map.at(ID_1D(j, i, m_cols)));
 		}
 	}
 
 	/* 3. Reshape and return the result */
-	return z.reshaped<Eigen::RowMajor>(m_rows, m_cols);
+	return Z;
 }
 
-void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
+void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std, const map_ii& valid_ids_map)
 {
 	bool is_5th = false; // determine if 5th order
 	bool is_3rd = false; // determine if 3rd order
@@ -91,8 +97,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i, m_cols)), -1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j + 1, i, m_cols)), 1));
 				++curr_row;
 
 				// push to g_std
@@ -113,8 +119,8 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sy
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i, m_cols)), -1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i + 1, m_cols)), 1));
 				++curr_row;
 
 				// push_to g_std
@@ -125,7 +131,7 @@ void CWFR::hfli_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 	}
 }
 
-void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
+void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std, const map_ii& valid_ids_map)
 {
 	bool is_5th = false; // determine if 5th order
 	bool is_3rd = false; // determine if 3rd order
@@ -141,8 +147,8 @@ void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sx
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j + 1, i, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i, m_cols)), -1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j + 1, i, m_cols)), 1));
 				++curr_row;
 
 				// push to g_std
@@ -169,8 +175,8 @@ void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 			// deal with Sy
 			if (is_5th || is_3rd) {
 				// push to D_trps
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i, m_cols), -1));
-				D_trps.push_back(Tripletd(curr_row, ID_1D(j, i + 1, m_cols), 1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i, m_cols)), -1));
+				D_trps.push_back(Tripletd(curr_row, valid_ids_map.at(ID_1D(j, i + 1, m_cols)), 1));
 				++curr_row;
 
 				// push_to g_std
@@ -186,6 +192,22 @@ void CWFR::hfliq_fill_D_g(TripletListd& D_trps, std_vecd& g_std)
 		}
 	}
 
+}
+
+map_ii CWFR::get_valid_ids()
+{
+	map_ii valid_id_map;
+
+	int_t current_id = 0;
+	for (auto i = 0; i < m_rows; i++) {
+		for (auto j = 0; j < m_cols; j++) {
+			if (is_valid_id(i, j)) {
+				valid_id_map[ID_1D(j, i, m_cols)] = current_id++;
+			}
+		}
+	}
+
+	return valid_id_map;
 }
 
 bool CWFR::is_3rd_order_equation_sx(const int_t& i, const int_t& j)

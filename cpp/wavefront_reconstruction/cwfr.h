@@ -56,20 +56,28 @@ private:
 	*					D * z = g
 	* \return the reconstructed wavefront Z
 	*/
-	MatrixXXd hfli_calculator(std::function<void (TripletListd&, std_vecd&)>hfli_prep);
+	MatrixXXd hfli_calculator(std::function<void (TripletListd&, std_vecd&, const map_ii&)>hfli_prep);
 
 private:
 	//! Fill the matrix D and the rhs vector g for hfli
 	void hfli_fill_D_g(
 		TripletListd& D_trps, /*!< [out] the filled matrix D*/
-		std_vecd& g_std /*!< [out] the filled vector g_std*/
+		std_vecd& g_std, /*!< [out] the filled vector g_std*/
+		const map_ii& valid_ids_map
 	);
 
 	//! Fill the matrix D and the rhs vector g for hfliq
 	void hfliq_fill_D_g(
 		TripletListd& D_trps, /*!< [out] the filled matrix D*/
-		std_vecd& g_std /*!< [out] the filled vector g_std*/
+		std_vecd& g_std, /*!< [out] the filled vector g_std*/
+		const map_ii& valid_ids_map
 	);
+
+	//! Determine if the id is valid
+	bool is_valid_id(const int& i, const int& j) const { return isfinite(m_Sx(i, j)) && isfinite(m_Sy(i, j)); };
+
+	//! Get all the valid ids
+	map_ii get_valid_ids();
 
 	//! Determine if the current position is valid for a 3rd-order equation
 	/*
